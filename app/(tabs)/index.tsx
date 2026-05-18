@@ -1,98 +1,178 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+// https://react.dev/learn/managing-state co to jest State
+// co to jest object keys, values, entries: Jak uzyć tego do figury białe i czarne żeby zablokować wybieranie figury przeciwnika
+// Stworzyc nowe repozytorium na Githubie o naziwe Szachy i dodać do niego owy projekt
+import {
+  ChessBishop,
+  ChessKing,
+  ChessKnight,
+  ChessPawn,
+  ChessQueen,
+  ChessRook,
+} from "lucide-react-native";
+import { useState } from "react";
+import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
+const szachownica = [
+  ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h"],
+  ["2a", "2b", "2c", "2d", "2e", "2f", "2g", "2h"],
+  ["3a", "3b", "3c", "3d", "3e", "3f", "3g", "3h"],
+  ["4a", "4b", "4c", "4d", "4e", "4f", "4g", "4h"],
+  ["5a", "5b", "5c", "5d", "5e", "5f", "5g", "5h"],
+  ["6a", "6b", "6c", "6d", "6e", "6f", "6g", "6h"],
+  ["7a", "7b", "7c", "7d", "7e", "7f", "7g", "7h"],
+  ["8a", "8b", "8c", "8d", "8e", "8f", "8g", "8h"],
+];
+const figurybiale = {
+  Pawn: ["2a", "2b", "2c", "2d", "2e", "2f", "2g", "2h"],
+  Bishop: ["1c", "1f"],
+  King: ["1e"],
+  Queen: ["1d"],
+  Knight: ["1b", "1g"],
+  Rook: ["1a", "1h"],
+};
+const figuryczarne = {
+  Pawn: ["7a", "7b", "7c", "7d", "7e", "7f", "7g", "7h"],
+  Bishop: ["8c", "8f"],
+  King: ["8e"],
+  Queen: ["8d"],
+  Knight: ["8b", "8g"],
+  Rook: ["8a", "8h"],
+};
+const windowWidth = Dimensions.get("window").width;
+const szerokoscpola = (windowWidth - 48) / 8;
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [aktywnafigura, setaktywnafigura] = useState<string | null>(null);
+  const [aktywnygracz, setaktywnygracz] = useState("bialy");
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  function sprawdzKolorPola(indexpole: number, indexrzad: number) {
+    if (indexrzad % 2 === 0) {
+      return indexpole % 2 === 0 ? styles.whiteSquare : styles.blackSquare;
+    } else {
+      return indexpole % 2 === 0 ? styles.blackSquare : styles.whiteSquare;
+    }
+  }
+
+  function ustawaktywnafigure(pole: string) {
+    setaktywnafigura(pole);
+  }
+
+  function dodawaniefigurnapole(pole: string) {
+    if (figurybiale.Pawn.includes(pole)) {
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessPawn color={pole === aktywnafigura ? "gold" : "red"} />
+        </Pressable>
+      );
+    }
+    if (figurybiale.Rook.includes(pole)) {
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessRook color={pole === aktywnafigura ? "gold" : "red"} />;
+        </Pressable>
+      );
+    }
+    if (figurybiale.King.includes(pole)) {
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessKing color={pole === aktywnafigura ? "gold" : "red"} />;
+        </Pressable>
+      );
+    }
+    if (figurybiale.Knight.includes(pole)) {
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessKnight color={pole === aktywnafigura ? "gold" : "red"} /> ;
+        </Pressable>
+      );
+    }
+    if (figurybiale.Queen.includes(pole)) {
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessQueen color={pole === aktywnafigura ? "gold" : "red"} />;
+        </Pressable>
+      );
+    }
+    if (figurybiale.Bishop.includes(pole)) {
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessBishop color={pole === aktywnafigura ? "gold" : "red"} />;
+        </Pressable>
+      );
+    }
+    if (figuryczarne.Pawn.includes(pole)) {
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessPawn color={pole === aktywnafigura ? "gold" : "blue"} />
+        </Pressable>
+      );
+    }
+    if (figuryczarne.Rook.includes(pole)) {
+      return <ChessRook color="blue" />;
+    }
+    if (figuryczarne.King.includes(pole)) {
+      return <ChessKing color="blue" />;
+    }
+    if (figuryczarne.Knight.includes(pole)) {
+      return <ChessKnight color="blue" />;
+    }
+    if (figuryczarne.Queen.includes(pole)) {
+      return <ChessQueen color="blue" />;
+    }
+    if (figuryczarne.Bishop.includes(pole)) {
+      return <ChessBishop color="blue" />;
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Aktywny gracz:{aktywnygracz} </Text>
+      <View style={styles.board}>
+        {szachownica.map((rzad, indexrzad) => (
+          <View style={styles.row}>
+            {rzad.map((pole, indexpole) => (
+              <View style={sprawdzKolorPola(indexpole, indexrzad)}>
+                {dodawaniefigurnapole(pole)}
+              </View>
+            ))}
+          </View>
+        ))}
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "green",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+
+  blackSquare: {
+    width: szerokoscpola,
+    height: szerokoscpola,
+    backgroundColor: "black",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  whiteSquare: {
+    width: szerokoscpola,
+    height: szerokoscpola,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  row: {
+    flexDirection: "row",
+  },
+  board: {
+    borderWidth: 4,
+    borderColor: "black:",
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: 800,
+    marginBottom: 24,
   },
 });

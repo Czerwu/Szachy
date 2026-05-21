@@ -1,6 +1,9 @@
-// https://react.dev/learn/managing-state co to jest State
-// co to jest object keys, values, entries: Jak uzyć tego do figury białe i czarne żeby zablokować wybieranie figury przeciwnika
-// Stworzyc nowe repozytorium na Githubie o naziwe Szachy i dodać do niego owy projekt
+// dopisac pressable do pozostałych figur
+// zastanow sie jak zrobic ze wybiore figury to podświetla mi sie pole na ktore moze sie rzuszyc (pionek)
+
+// https://react.dev/reference/react/useEffect przeczytać i sie dowiedzieć jak działa
+// jak mozemy uproscic funckje dodowanie figury na pole zeby nie bylo tyle if
+// jak wykonac ruch pionkiem do przodu
 import {
   ChessBishop,
   ChessKing,
@@ -9,7 +12,7 @@ import {
   ChessQueen,
   ChessRook,
 } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 const szachownica = [
   ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h"],
@@ -21,7 +24,7 @@ const szachownica = [
   ["7a", "7b", "7c", "7d", "7e", "7f", "7g", "7h"],
   ["8a", "8b", "8c", "8d", "8e", "8f", "8g", "8h"],
 ];
-const figurybiale = {
+const startowebiale = {
   Pawn: ["2a", "2b", "2c", "2d", "2e", "2f", "2g", "2h"],
   Bishop: ["1c", "1f"],
   King: ["1e"],
@@ -29,7 +32,7 @@ const figurybiale = {
   Knight: ["1b", "1g"],
   Rook: ["1a", "1h"],
 };
-const figuryczarne = {
+const startoweczarne = {
   Pawn: ["7a", "7b", "7c", "7d", "7e", "7f", "7g", "7h"],
   Bishop: ["8c", "8f"],
   King: ["8e"],
@@ -43,6 +46,9 @@ const szerokoscpola = (windowWidth - 48) / 8;
 export default function HomeScreen() {
   const [aktywnafigura, setaktywnafigura] = useState<string | null>(null);
   const [aktywnygracz, setaktywnygracz] = useState("bialy");
+  const [mozliweruchy, setmozliweruchy] = useState<string[]>([]);
+  const [figuryczarne, setfiguryczarne] = useState(startoweczarne);
+  const [figurybiale, setfigurybiale] = useState(startowebiale);
 
   function sprawdzKolorPola(indexpole: number, indexrzad: number) {
     if (indexrzad % 2 === 0) {
@@ -53,9 +59,32 @@ export default function HomeScreen() {
   }
 
   function ustawaktywnafigure(pole: string) {
-    setaktywnafigura(pole);
+    if (
+      aktywnygracz === "bialy" &&
+      Object.values(figurybiale).flat().includes(pole)
+    )
+      setaktywnafigura(pole);
+    if (
+      aktywnygracz === "czarny" &&
+      Object.values(figuryczarne).flat().includes(pole)
+    )
+      setaktywnafigura(pole);
   }
-
+  function ruchpionka(pole: string) {
+    if (
+      aktywnygracz === "bialy" &&
+      mozliweruchy.includes(pole) &&
+      !!aktywnafigura
+    ) {
+      setfigurybiale((prev) => ({
+        ...prev,
+        Pawn: [...figurybiale.Pawn.filter((el) => el !== aktywnafigura), pole],
+      }));
+      setaktywnafigura(null)
+      setmozliweruchy([]) 
+      setaktywnygracz("czarny")
+    }
+  }
   function dodawaniefigurnapole(pole: string) {
     if (figurybiale.Pawn.includes(pole)) {
       return (
@@ -107,21 +136,49 @@ export default function HomeScreen() {
       );
     }
     if (figuryczarne.Rook.includes(pole)) {
-      return <ChessRook color="blue" />;
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessRook color={pole === aktywnafigura ? "gold" : "blue"} />
+        </Pressable>
+      );
     }
     if (figuryczarne.King.includes(pole)) {
-      return <ChessKing color="blue" />;
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessKing color={pole === aktywnafigura ? "gold" : "blue"} />
+        </Pressable>
+      );
     }
     if (figuryczarne.Knight.includes(pole)) {
-      return <ChessKnight color="blue" />;
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessKnight color={pole === aktywnafigura ? "gold" : "blue"} />
+        </Pressable>
+      );
     }
     if (figuryczarne.Queen.includes(pole)) {
-      return <ChessQueen color="blue" />;
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessQueen color={pole === aktywnafigura ? "gold" : "blue"} />
+        </Pressable>
+      );
     }
     if (figuryczarne.Bishop.includes(pole)) {
-      return <ChessBishop color="blue" />;
+      return (
+        <Pressable onPress={() => ustawaktywnafigure(pole)}>
+          <ChessBishop color={pole === aktywnafigura ? "gold" : "blue"} />
+        </Pressable>
+      );
     }
   }
+// Można dopisać obliczanie możliwych ruchów dla wszystkich figur, aktualnie działa tylko i wyłącznie dla pionków.
+  useEffect(() => {
+    const ruch = aktywnafigura?.split("");
+    if (ruch?.length) {
+      const nastepnyruch = +ruch[0] + (aktywnygracz === "bialy" ? 1: -1) + ruch[1];
+      setmozliweruchy([nastepnyruch]);
+    }
+  }, [aktywnafigura, aktywnygracz]);
 
   return (
     <View style={styles.container}>
@@ -130,9 +187,15 @@ export default function HomeScreen() {
         {szachownica.map((rzad, indexrzad) => (
           <View style={styles.row}>
             {rzad.map((pole, indexpole) => (
-              <View style={sprawdzKolorPola(indexpole, indexrzad)}>
+              <Pressable
+                onPress={() => ruchpionka(pole)}
+                style={[
+                  sprawdzKolorPola(indexpole, indexrzad),
+                  mozliweruchy.includes(pole) && styles.poleruchu,
+                ]}
+              >
                 {dodawaniefigurnapole(pole)}
-              </View>
+              </Pressable>
             ))}
           </View>
         ))}
@@ -174,5 +237,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 800,
     marginBottom: 24,
+  },
+  poleruchu: {
+    borderWidth: 4,
+    borderColor: "red",
   },
 });

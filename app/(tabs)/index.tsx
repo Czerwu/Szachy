@@ -4,6 +4,8 @@
 // https://react.dev/reference/react/useEffect przeczytać i sie dowiedzieć jak działa
 // jak mozemy uproscic funckje dodowanie figury na pole zeby nie bylo tyle if
 // jak wykonac ruch pionkiem do przodu
+
+// Zamiast ikony domku ma być pad do gier i zamiast napisu home bedzie napis game , zamiast explore i samolotu bedzie learn i otwarta książka. 
 import {
   ChessBishop,
   ChessKing,

@@ -4,7 +4,7 @@ import React from "react";
 import { HapticTab } from "@/components/haptic-tab";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { BookOpen, Gamepad2 } from "lucide-react-native";
+import { BookOpen, Gamepad2, ListCheck } from "lucide-react-native";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
@@ -28,6 +28,13 @@ export default function TabLayout() {
         options={{
           title: "Learn",
           tabBarIcon: ({ color }) => <BookOpen size={28} color={color} />,
+        }}
+      />
+       <Tabs.Screen
+        name="list"
+        options={{
+          title: "List",
+          tabBarIcon: ({ color }) => <ListCheck size={28} color={color} />,
         }}
       />
     </Tabs>

@@ -1,6 +1,4 @@
-// sciagnac kursor
 
-// Zrobić sachownice i do wszystkich figur wszystkie ruchy. Ruch w osobnych tablicach. Zamiast czerwonego podsweitlenia ma byc złote.
 import {
   ChessBishop,
   ChessKing,

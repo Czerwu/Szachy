@@ -15,19 +15,22 @@ import {
 type ItemProps = { tekst: string; nadawaca: number; id: string };
 
 const wiadomosci = [
-    { tekst: "Czesc", nadawaca: 1, id: "1" },
-    { tekst: "Czesc", nadawaca: 2, id: "2" },
-    { tekst: "Co tam ", nadawaca: 1, id: "3" },
-    { tekst: "Jestem właśnie w skelpie", nadawaca: 2, id: "4" },
-  ];
+  { tekst: "Czesc", nadawaca: 1, id: "1" },
+  { tekst: "Czesc", nadawaca: 2, id: "2" },
+  { tekst: "Co tam ", nadawaca: 1, id: "3" },
+  { tekst: "Jestem właśnie w skelpie", nadawaca: 2, id: "4" },
+];
 
 export default function TabThreeScreen() {
   const [text, setText] = useState("");
   const [messages, setmessages] = useState(wiadomosci);
 
   function wyslij() {
-    setmessages (prev =>[...prev, {tekst: text, nadawaca: 2, id: (messages.length + 1).toString()}])
-    setText ("")
+    setmessages((prev) => [
+      ...prev,
+      { tekst: text, nadawaca: 2, id: (messages.length + 1).toString() },
+    ]);
+    setText("");
   }
 
   const Item = ({ tekst, nadawaca }: ItemProps) => (
@@ -35,19 +38,19 @@ export default function TabThreeScreen() {
       style={[
         styles.item,
         {
-          backgroundColor: nadawaca === 1 ? "white" : "lightblue", alignSelf: nadawaca === 1 ? "flex-start" : "flex-end"
+          backgroundColor: nadawaca === 1 ? "white" : "lightblue",
+          alignSelf: nadawaca === 1 ? "flex-start" : "flex-end",
         },
       ]}
     >
       <Text>{tekst}</Text>
     </View>
   );
-  
 
   return (
     <View style={styles.container}>
       <FlatList
-      contentContainerStyle = {styles.flatlistcontainer}
+        contentContainerStyle={styles.flatlistcontainer}
         data={messages}
         renderItem={({ item }) => <Item {...item} />}
         keyExtractor={(item) => item.id}
@@ -60,8 +63,8 @@ export default function TabThreeScreen() {
           placeholder="Aa"
         />
 
-        <Pressable onPress={wyslij}>
-          <SendHorizonal size={40} color="blue" />
+        <Pressable onPress={wyslij} disabled={text === "" ? true : false}>
+          <SendHorizonal size={40} color={text === "" ? "gray" : "blue"} />
         </Pressable>
       </View>
     </View>
@@ -95,11 +98,10 @@ const styles = StyleSheet.create({
   item: {
     padding: 20,
     borderRadius: 12,
-    flex: 1, 
-    
+    flex: 1,
   },
   flatlistcontainer: {
-    gap:12, 
+    gap: 12,
     paddingHorizontal: 16,
-  }
+  },
 });

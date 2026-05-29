@@ -1,5 +1,5 @@
 
-// Zamiast ikony domku ma być pad do gier i zamiast napisu home bedzie napis game , zamiast explore i samolotu bedzie learn i otwarta książka. 
+
 import {
   ChessBishop,
   ChessKing,
